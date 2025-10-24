@@ -5,12 +5,13 @@ services:
     restart: always
     container_name: cloud_storage_db
     ports:
-      - "5432:5432"
+      - "5431:5432"
     environment:
       POSTGRES_USER: dev
       POSTGRES_PASSWORD: dev
       POSTGRES_DB: cloud_storage
     volumes:
       - db_data:/var/lib/postgresql/data
+
 volumes:
   db_data:

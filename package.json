@@ -1,18 +1,36 @@
 {
-  "devDependencies": {
-    "eslint": "^9.38.0",
-    "eslint-config-prettier": "^10.1.8",
-    "eslint-plugin-prettier": "^5.5.4",
-    "husky": "^9.1.7",
-    "lint-staged": "^16.2.6",
-    "prettier": "^3.6.2"
-  },
+  "name": "cloud-storage-app",
+  "version": "1.0.0",
+  "private": true,
+  "type": "commonjs",
   "scripts": {
     "prepare": "husky install",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "prisma:migrate": "npx prisma migrate dev --name init",
+    "prisma:generate": "npx prisma generate",
+    "terraform:init": "terraform init",
+    "terraform:plan": "terraform plan",
+    "terraform:apply": "terraform apply"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.18.0"
+  },
+  "devDependencies": {
+    "prisma": "^6.18.0",
+    "eslint": "^9.38.0",
+    "@typescript-eslint/parser": "^6.0.0",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "eslint-plugin-react": "^7.35.0",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.4",
+    "prettier": "^3.6.2",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.2.6"
   },
   "lint-staged": {
+    "*.{ts,tsx,js,jsx}": "eslint --fix",
     "*.{ts,tsx,js,jsx,json,scss,css,md}": "prettier --write"
   }
 }

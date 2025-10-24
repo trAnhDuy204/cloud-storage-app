@@ -1,5 +1,4 @@
 module.exports = {
-  root: true,
   parser: '@typescript-eslint/parser',
   parserOptions: { ecmaVersion: 2022, sourceType: 'module' },
   env: { browser: true, node: true, es2022: true },
@@ -12,7 +11,6 @@ module.exports = {
   ],
   settings: { react: { version: 'detect' } },
   rules: {
-    // chỉnh rule theo taste
     'react/react-in-jsx-scope': 'off'
   }
 };
