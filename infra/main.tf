@@ -1,4 +1,7 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> d8e4296 (migration3)
 provider "aws" {
   region = "ap-southeast-1"
 }
@@ -13,8 +16,11 @@ module "vpc" {
   public_subnets  = ["10.0.1.0/24", "10.0.2.0/24"]
   private_subnets = ["10.0.3.0/24", "10.0.4.0/24"]
 }
+<<<<<<< HEAD
 =======
 
 >>>>>>> 4ce7f9a (init new migration)
+=======
+>>>>>>> d8e4296 (migration3)
 
 
