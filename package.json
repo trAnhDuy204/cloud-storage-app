@@ -11,7 +11,8 @@
     "prisma:generate": "npx prisma generate",
     "terraform:init": "terraform init",
     "terraform:plan": "terraform plan",
-    "terraform:apply": "terraform apply"
+    "terraform:apply": "terraform apply",
+    "build": "npm --prefix frontend run build"
   },
   "dependencies": {
     "@prisma/client": "^6.18.0"
