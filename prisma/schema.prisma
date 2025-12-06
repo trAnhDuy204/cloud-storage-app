@@ -1,5 +1,6 @@
 generator client {
   provider = "prisma-client-js"
+  output   = "../backend/node_modules/.prisma/client"
 }
 
 datasource db {
@@ -8,190 +9,294 @@ datasource db {
 }
 
 model Plan {
-  id             String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  name           String
-  priceUsd       Float    @default(0) @map("price_usd")
-  storageLimitGb Int      @default(10) @map("storage_limit_gb")
-  maxUsers       Int      @default(5) @map("max_users")
-  createdAt      DateTime @default(now()) @map("created_at")
-
-  organizations Organization[]
-  subscriptions Subscription[]
+  id              String         @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  name            String
+  priceUsd        Float          @default(0) @map("price_usd")
+  storageLimitGb  Int            @default(10) @map("storage_limit_gb")
+  maxUsers        Int            @default(5) @map("max_users")
+  createdAt       DateTime       @default(now()) @map("created_at")
+  
+  organizations   Organization[]
+  subscriptions   Subscription[]
+  payments        Payment[]
+  
+  @@map("Plan")
 }
 
 model Organization {
-  id             String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  name           String   @unique
-  storageLimitGb Int      @default(10) @map("storage_limit_gb")
-  planId         String?  @map("plan_id") @db.Uuid
-  createdAt      DateTime @default(now()) @map("created_at")
-  updatedAt      DateTime @default(now()) @map("updated_at")
-
-  plan          Plan?          @relation(fields: [planId], references: [id])
-  users         User[]
-  folders       Folder[]
-  subscriptions Subscription[]
-  usageStats    UsageStat?
+  id              String       @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  name            String
+  storageLimitGb  Int          @default(10) @map("storage_limit_gb")
+  planId          String?      @map("plan_id") @db.Uuid
+  createdAt       DateTime     @default(now()) @map("created_at")
+  updatedAt       DateTime     @default(now()) @updatedAt @map("updated_at")
+  
+  plan            Plan?        @relation(fields: [planId], references: [id])
+  users           User[]
+  folders         Folder[]
+  subscriptions   Subscription[]
+  usageStats      UsageStat[]
+  payments        Payment[]
+  dailyStatistics  DailyStatistic[]
+  userActivities   UserActivity[]
+  trafficLogs      TrafficLog[]
+  
+  @@map("Organization")
 }
 
 model User {
-  id             String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  email          String   @unique
-  name           String
-  passwordHash   String?  @map("password_hash")
-  organizationId String?  @map("organization_id") @db.Uuid
-  role           String   @default("member")
-  createdAt      DateTime @default(now()) @map("created_at")
-  updatedAt      DateTime @default(now()) @map("updated_at")
-
-  organization Organization? @relation(fields: [organizationId], references: [id])
-  folders      Folder[]
-  files        File[]
-  uploads      FileVersion[] @relation("uploadedBy")
-  shares       Share[]       @relation("sharedBy")
-  sharedWith   Share[]       @relation("sharedWithUser")
-  auditLogs    AuditLog[]
-}
-
-model Folder {
-  id             String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  name           String
-  parentId       String?  @map("parent_id") @db.Uuid
-  ownerId        String?  @map("owner_id") @db.Uuid
-  organizationId String   @map("organization_id") @db.Uuid
-  createdAt      DateTime @default(now()) @map("created_at")
-  updatedAt      DateTime @default(now()) @map("updated_at")
-
-  parent       Folder?      @relation("ParentFolder", fields: [parentId], references: [id])
-  children     Folder[]     @relation("ParentFolder")
-  owner        User?        @relation(fields: [ownerId], references: [id])
-  organization Organization @relation(fields: [organizationId], references: [id])
-  files        File[]
-
-  @@index([parentId], name: "idx_folder_parent")
-  @@index([organizationId], name: "idx_folder_org")
-}
-
-model File {
-  id        String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  name      String
-  folderId  String    @map("folder_id") @db.Uuid
-  ownerId   String?   @map("owner_id") @db.Uuid
-  sizeBytes BigInt?   @default(0) @map("size_bytes")
-  s3Key     String    @map("s3_key")
-  mimeType  String?   @map("mime_type")
-  checksum  String?
-  versionId String?   @map("version_id") @db.Uuid
-  createdAt DateTime  @default(now()) @map("created_at")
-  updatedAt DateTime  @default(now()) @map("updated_at")
-  deletedAt DateTime? @map("deleted_at")
-
-  folder   Folder        @relation(fields: [folderId], references: [id])
-  owner    User?         @relation(fields: [ownerId], references: [id])
-  versions FileVersion[]
-  shares   Share[]
-
-  @@unique([folderId, name], name: "uniq_file_folder_name")
-  @@index([folderId], name: "idx_file_folder")
-  @@index([ownerId], name: "idx_file_owner")
-}
-
-model FileVersion {
-  id            String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  fileId        String   @map("file_id") @db.Uuid
-  versionNumber Int      @map("version_number")
-  s3Key         String   @map("s3_key")
-  uploadedAt    DateTime @default(now()) @map("uploaded_at")
-  uploadedById  String?  @map("uploaded_by") @db.Uuid
-  sizeBytes     BigInt?  @map("size_bytes")
-  checksum      String?
-  mimeType      String?
-
-  file       File  @relation(fields: [fileId], references: [id])
-  uploadedBy User? @relation("uploadedBy", fields: [uploadedById], references: [id])
-
-  @@unique([fileId, versionNumber])
-  @@index([fileId], name: "idx_file_version_file")
-}
-
-model Share {
-  id               String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  fileId           String    @map("file_id") @db.Uuid
-  sharedById       String?   @map("shared_by") @db.Uuid
-  sharedWithUserId String?   @map("shared_with_user") @db.Uuid
-  sharedWithEmail  String?   @map("shared_with_email")
-  linkToken        String?   @unique @map("link_token")
-  permission       String    @default("view")
-  passwordHash     String?   @map("password_hash")
-  expiresAt        DateTime? @map("expires_at")
-  createdAt        DateTime  @default(now()) @map("created_at")
-
-  file           File  @relation(fields: [fileId], references: [id])
-  sharedBy       User? @relation("sharedBy", fields: [sharedById], references: [id])
-  sharedWithUser User? @relation("sharedWithUser", fields: [sharedWithUserId], references: [id])
-
-  @@index([fileId], name: "idx_share_file")
-  @@index([sharedWithUserId], name: "idx_share_user")
+  id              String       @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  email           String       @unique
+  name            String
+  passwordHash    String?      @map("password_hash")
+  organizationId  String?      @map("organization_id") @db.Uuid
+  role            String       @default("member")
+  createdAt       DateTime     @default(now()) @map("created_at")
+  updatedAt       DateTime     @default(now()) @updatedAt @map("updated_at")
+  
+  organization    Organization? @relation(fields: [organizationId], references: [id])
+  ownedFolders    Folder[]     @relation("FolderOwner")
+  ownedFiles      File[]       @relation("FileOwner")
+  fileVersions    FileVersion[] @relation("FileVersionUploader")
+  sharesCreated   Share[]      @relation("ShareCreator")
+  sharesReceived  Share[]      @relation("ShareReceiver")
+  auditLogs       AuditLog[]
+  activities       UserActivity[]
+  trafficLogs      TrafficLog[]
+  
+  @@map("User")
 }
 
 model Subscription {
-  id                   String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  organizationId       String    @map("organization_id") @db.Uuid
-  planId               String?   @map("plan_id") @db.Uuid
-  stripeSubscriptionId String?   @map("stripe_subscription_id")
-  status               String    @default("active")
-  startDate            DateTime  @default(now()) @map("start_date")
-  endDate              DateTime? @map("end_date")
-  createdAt            DateTime  @default(now()) @map("created_at")
-  updatedAt            DateTime  @default(now()) @map("updated_at")
+  id                    String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  organizationId        String    @map("organization_id") @db.Uuid
+  planId                String?   @map("plan_id") @db.Uuid
+  stripeSubscriptionId  String?   @map("stripe_subscription_id")
+  vnpayTransactionId    String?   @map("vnpay_transaction_id")
+  paymentMethod         String    @default("stripe") @map("payment_method")
+  status                String    @default("active")
+  startDate             DateTime  @default(now()) @map("start_date")
+  endDate               DateTime? @map("end_date")
+  createdAt             DateTime  @default(now()) @map("created_at")
+  updatedAt             DateTime  @default(now()) @updatedAt @map("updated_at")
+  
+  organization          Organization @relation(fields: [organizationId], references: [id])
+  plan                  Plan?        @relation(fields: [planId], references: [id])
+  invoices              Invoice[]
+  payments              Payment[]
+  
+  @@map("Subscription")
+}
 
-  organization Organization @relation(fields: [organizationId], references: [id])
-  plan         Plan?        @relation(fields: [planId], references: [id])
-  invoices     Invoice[]
+model Payment {
+  id                    String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  organizationId        String    @map("organization_id") @db.Uuid
+  subscriptionId        String?   @map("subscription_id") @db.Uuid
+  planId                String?   @map("plan_id") @db.Uuid
+  orderId               String    @unique @map("order_id")
+  paymentMethod         String    @default("vnpay") @map("payment_method")
+  amountUsd             Float     @map("amount_usd")
+  amountVnd             BigInt?   @map("amount_vnd")
+  currency              String    @default("VND")
+  status                String    @default("pending")
+  vnpayTransactionId    String?   @map("vnpay_transaction_id")
+  vnpayResponseCode     String?   @map("vnpay_response_code")
+  stripePaymentIntentId String?   @map("stripe_payment_intent_id")
+  description           String?
+  ipAddress             String?   @map("ip_address")
+  returnUrl             String?   @map("return_url")
+  rawResponse           Json?     @map("raw_response")
+  createdAt             DateTime  @default(now()) @map("created_at")
+  paidAt                DateTime? @map("paid_at")
+  updatedAt             DateTime  @default(now()) @updatedAt @map("updated_at")
+  
+  organization          Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  subscription          Subscription? @relation(fields: [subscriptionId], references: [id], onDelete: SetNull)
+  plan                  Plan?         @relation(fields: [planId], references: [id], onDelete: SetNull)
 
-  @@index([organizationId], name: "idx_sub_org")
-  @@index([stripeSubscriptionId], name: "idx_sub_stripe")
+  @@index([orderId])
+  @@index([organizationId])
+  @@index([status])
+  @@index([vnpayTransactionId])
+  @@map("Payment")
 }
 
 model Invoice {
+  id                String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  subscriptionId    String    @map("subscription_id") @db.Uuid
+  stripeInvoiceId   String?   @map("stripe_invoice_id")
+  amountUsd         Float?    @map("amount_usd")
+  status            String    @default("pending")
+  issuedAt          DateTime  @default(now()) @map("issued_at")
+  paidAt            DateTime? @map("paid_at")
+  rawPayload        Json?     @map("raw_payload")
+  
+  subscription      Subscription @relation(fields: [subscriptionId], references: [id])
+  
+  @@map("Invoice")
+}
+
+// ... các model khác giữ nguyên ...
+
+model Folder {
+  id              String       @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  name            String
+  parentId        String?      @map("parent_id") @db.Uuid
+  ownerId         String?      @map("owner_id") @db.Uuid
+  organizationId  String       @map("organization_id") @db.Uuid
+  createdAt       DateTime     @default(now()) @map("created_at")
+  updatedAt       DateTime     @default(now()) @updatedAt @map("updated_at")
+  
+  organization    Organization @relation(fields: [organizationId], references: [id])
+  owner           User?        @relation("FolderOwner", fields: [ownerId], references: [id])
+  parent          Folder?      @relation("FolderHierarchy", fields: [parentId], references: [id])
+  children        Folder[]     @relation("FolderHierarchy")
+  files           File[]
+  
+  @@map("Folder")
+}
+
+model File {
+  id              String        @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  name            String
+  folderId        String        @map("folder_id") @db.Uuid
+  ownerId         String?       @map("owner_id") @db.Uuid
+  sizeBytes       BigInt?       @default(0) @map("size_bytes")
+  serverKey       String        @map("server_key")
+  mimeType        String?       @map("mime_type")
+  checksum        String?
+  versionId       String?       @map("version_id") @db.Uuid
+  createdAt       DateTime      @default(now()) @map("created_at")
+  updatedAt       DateTime      @default(now()) @updatedAt @map("updated_at")
+  deletedAt       DateTime?     @map("deleted_at")
+  
+  folder          Folder        @relation(fields: [folderId], references: [id])
+  owner           User?         @relation("FileOwner", fields: [ownerId], references: [id])
+  versions        FileVersion[]
+  shares          Share[]
+  trafficLogs      TrafficLog[]
+  
+  @@map("File")
+}
+
+model FileVersion {
   id              String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  subscriptionId  String    @map("subscription_id") @db.Uuid
-  stripeInvoiceId String?   @map("stripe_invoice_id")
-  amountUsd       Float?    @map("amount_usd")
-  status          String    @default("pending")
-  issuedAt        DateTime  @default(now()) @map("issued_at")
-  paidAt          DateTime? @map("paid_at")
-  rawPayload      Json?     @map("raw_payload")
+  fileId          String    @map("file_id") @db.Uuid
+  versionNumber   Int       @map("version_number")
+  serverKey       String    @map("server_key")
+  uploadedAt      DateTime  @default(now()) @map("uploaded_at")
+  uploadedBy      String?   @map("uploaded_by") @db.Uuid
+  sizeBytes       BigInt?   @map("size_bytes")
+  checksum        String?
+  mimeType        String?
+  
+  file            File      @relation(fields: [fileId], references: [id])
+  uploader        User?     @relation("FileVersionUploader", fields: [uploadedBy], references: [id])
+  
+  @@map("FileVersion")
+}
 
-  subscription Subscription @relation(fields: [subscriptionId], references: [id])
-
-  @@index([subscriptionId], name: "idx_invoice_sub")
-  @@index([stripeInvoiceId], name: "idx_invoice_stripe")
+model Share {
+  id                String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  fileId            String    @map("file_id") @db.Uuid
+  sharedBy          String?   @map("shared_by") @db.Uuid
+  sharedWithUser    String?   @map("shared_with_user") @db.Uuid
+  sharedWithEmail   String?   @map("shared_with_email")
+  linkToken         String?   @map("link_token")
+  permission        String    @default("view")
+  passwordHash      String?   @map("password_hash")
+  expiresAt         DateTime? @map("expires_at")
+  createdAt         DateTime  @default(now()) @map("created_at")
+  
+  file              File      @relation(fields: [fileId], references: [id])
+  creator           User?     @relation("ShareCreator", fields: [sharedBy], references: [id])
+  recipient         User?     @relation("ShareReceiver", fields: [sharedWithUser], references: [id])
+  
+  @@map("Share")
 }
 
 model UsageStat {
-  id                String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  organizationId    String   @unique @map("organization_id") @db.Uuid
-  totalStorageBytes BigInt   @default(0) @map("total_storage_bytes")
-  fileCount         BigInt   @default(0) @map("file_count")
-  lastUpdatedAt     DateTime @default(now()) @map("last_updated_at")
-
-  organization Organization @relation(fields: [organizationId], references: [id])
+  id                String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  organizationId    String    @map("organization_id") @db.Uuid
+  totalStorageBytes BigInt    @default(0) @map("total_storage_bytes")
+  fileCount         BigInt    @default(0) @map("file_count")
+  lastUpdatedAt     DateTime  @default(now()) @map("last_updated_at")
+  
+  organization      Organization @relation(fields: [organizationId], references: [id])
+  
+  @@map("UsageStat")
 }
 
 model AuditLog {
-  id         String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  userId     String?  @map("user_id") @db.Uuid
-  action     String
-  targetId   String?  @map("target_id") @db.Uuid
-  targetType String?
-  ipAddress  String?  @map("ip_address")
-  userAgent  String?  @map("user_agent")
-  details    Json?
-  timestamp  DateTime @default(now())
+  id          String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  userId      String?   @map("user_id") @db.Uuid
+  action      String
+  targetId    String?   @map("target_id") @db.Uuid
+  targetType  String?
+  ipAddress   String?   @map("ip_address")
+  userAgent   String?   @map("user_agent")
+  details     Json?
+  timestamp   DateTime  @default(now())
+  
+  user        User?     @relation(fields: [userId], references: [id])
+  
+  @@map("AuditLog")
+}
 
-  user User? @relation(fields: [userId], references: [id])
+model DailyStatistic {
+  id                  String       @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  organizationId      String       @map("organization_id") @db.Uuid
+  date                DateTime     @db.Date
+  activeUsers         Int          @default(0) @map("active_users")
+  totalStorageBytes   BigInt       @default(0) @map("total_storage_bytes")
+  fileCount           Int          @default(0) @map("file_count")
+  trafficBytes        BigInt       @default(0) @map("traffic_bytes")
+  newFiles            Int          @default(0) @map("new_files")
+  deletedFiles        Int          @default(0) @map("deleted_files")
+  createdAt           DateTime     @default(now()) @map("created_at")
+  updatedAt           DateTime     @default(now()) @updatedAt @map("updated_at")
 
-  @@index([userId], name: "idx_audit_user")
-  @@index([targetType, targetId], name: "idx_audit_target")
+  organization        Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@unique([organizationId, date])
+  @@index([organizationId])
+  @@index([date])
+  @@map("DailyStatistic")
+}
+
+model UserActivity {
+  id             String       @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  userId         String       @map("user_id") @db.Uuid
+  organizationId String       @map("organization_id") @db.Uuid
+  activityType   String       @default("login") @map("activity_type")
+  ipAddress      String?      @map("ip_address")
+  userAgent      String?      @map("user_agent")
+  createdAt      DateTime     @default(now()) @map("created_at")
+
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([organizationId])
+  @@index([createdAt])
+  @@map("UserActivity")
+}
+
+model TrafficLog {
+  id             String       @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  organizationId String       @map("organization_id") @db.Uuid
+  userId         String?      @map("user_id") @db.Uuid
+  fileId         String?      @map("file_id") @db.Uuid
+  operation      String       // 'upload', 'download', 'stream'
+  bytes          BigInt       @default(0)
+  createdAt      DateTime     @default(now()) @map("created_at")
+
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  user           User?        @relation(fields: [userId], references: [id], onDelete: SetNull)
+  file           File?        @relation(fields: [fileId], references: [id], onDelete: SetNull)
+
+  @@index([organizationId])
+  @@index([createdAt])
+  @@index([userId])
+  @@map("TrafficLog")
 }

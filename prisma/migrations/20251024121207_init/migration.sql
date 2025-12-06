@@ -6,8 +6,8 @@ CREATE TABLE "Plan" (
     "id" UUID NOT NULL DEFAULT uuid_generate_v4(),
     "name" TEXT NOT NULL,
     "price_usd" DOUBLE PRECISION NOT NULL DEFAULT 0,
-    "storage_limit_gb" INTEGER NOT NULL DEFAULT 10,
-    "max_users" INTEGER NOT NULL DEFAULT 5,
+    "storage_limit_gb" INTEGER NOT NULL DEFAULT 1,
+    "max_users" INTEGER NOT NULL DEFAULT 1,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "Plan_pkey" PRIMARY KEY ("id")
@@ -17,7 +17,7 @@ CREATE TABLE "Plan" (
 CREATE TABLE "Organization" (
     "id" UUID NOT NULL DEFAULT uuid_generate_v4(),
     "name" TEXT NOT NULL,
-    "storage_limit_gb" INTEGER NOT NULL DEFAULT 10,
+    "storage_limit_gb" INTEGER NOT NULL DEFAULT 1,
     "plan_id" UUID,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -59,7 +59,7 @@ CREATE TABLE "File" (
     "folder_id" UUID NOT NULL,
     "owner_id" UUID,
     "size_bytes" BIGINT DEFAULT 0,
-    "s3_key" TEXT NOT NULL,
+    "server_key" TEXT NOT NULL,
     "mime_type" TEXT,
     "checksum" TEXT,
     "version_id" UUID,
@@ -75,7 +75,7 @@ CREATE TABLE "FileVersion" (
     "id" UUID NOT NULL DEFAULT uuid_generate_v4(),
     "file_id" UUID NOT NULL,
     "version_number" INTEGER NOT NULL,
-    "s3_key" TEXT NOT NULL,
+    "server_key" TEXT NOT NULL,
     "uploaded_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "uploaded_by" UUID,
     "size_bytes" BIGINT,

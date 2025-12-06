@@ -1,0 +1,2 @@
+ALTER TABLE "Payment"
+ADD COLUMN "plan_id" UUID REFERENCES "Plan"("id") ON DELETE SET NULL;
