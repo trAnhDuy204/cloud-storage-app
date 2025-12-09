@@ -8,9 +8,22 @@ datasource db {
 }
 
 model User {
+  id             Int           @id @default(autoincrement())
+  email          String        @unique
+  password       String
+  name           String?
+  googleId       String?       @unique
+  avatarUrl      String?
+  organizationId Int?
+  organization   Organization? @relation(fields: [organizationId], references: [id])
+  createdAt      DateTime      @default(now()) @map("created_at")
+}
+
+
+
+model Organization {
   id        Int      @id @default(autoincrement())
-  email     String   @unique
-  password  String
-  name      String?
+  name      String
+  users     User[]
   createdAt DateTime @default(now()) @map("created_at")
 }
