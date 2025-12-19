@@ -1,6 +1,7 @@
 import React, { useState, useEffect  } from 'react';
 import { Check, X, CreditCard, Building2, ArrowLeft, Shield, Lock, Info, AlertCircle } from 'lucide-react';
 import { apiClient } from '../../../lib/api';
+import { getToken, getUser } from "../../app/utils/auth";
 
 interface Plan {
   id: string;
@@ -18,6 +19,9 @@ const ReviewPlanPage = () => {
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  //lấy token và user từ localStorage
+  const user = getUser();
+  const token = getToken();
 
   // Load plan from localStorage on mount
   useEffect(() => {
@@ -105,10 +109,8 @@ const ReviewPlanPage = () => {
     setLoading(true);
 
     try {
-      // TODO: Lấy organizationId từ user hiện tại
-      // Tạm thời hardcode để test
-      const organizationId = '8594083b-d6f2-4d7f-b4d6-71864844eb16';
-      const userEmail = 'test01@gmail.com';
+      const organizationId = user.organizationId;
+      const userEmail = user.email;
 
       if (paymentMethod === 'stripe') {
       // Gọi API tạo Stripe Checkout Session

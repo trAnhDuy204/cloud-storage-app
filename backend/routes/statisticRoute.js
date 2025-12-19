@@ -18,7 +18,7 @@ function safeDivide(value, divider) {
 
 
 // GET /api/organizations/:organizationId/statistics
-router.get('/api/organizations/:organizationId/statistics', async (req, res) => {
+router.get('/api/statistics/:organizationId', async (req, res) => {
   try {
     const { organizationId } = req.params;
     const { range , startDate, endDate } = req.query;

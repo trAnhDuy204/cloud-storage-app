@@ -1,5 +1,4 @@
-const { PrismaClient } = require('@prisma/client');
-const prisma = new PrismaClient();
+const prisma = require('../lib/prisma');
 
 async function trackUserActivity(
   userId,
@@ -104,20 +103,6 @@ module.exports = {
 
 
 /*
-
-TODO: thêm vào trang login
-import { trackUserActivity } from '@/lib/statistics';
-
-// After successful login
-if (user.organizationId) {
-  await trackUserActivity(
-    user.id, 
-    user.organizationId, 
-    'login',
-    req.headers['x-forwarded-for'] as string,
-    req.headers['user-agent'] as string
-  );
-}
   
 TODO: thêm vào chỗ upload, dowload file
 import { trackTraffic, updateUsageStats } from '@/lib/statistics';

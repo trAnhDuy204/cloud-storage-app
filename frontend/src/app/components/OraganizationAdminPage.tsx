@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import Link from "next/link";
 import { apiClient } from '../../../lib/api';
+import { getToken, getUser } from "../../app/utils/auth";
 
 interface DashboardData {
   organization: {
@@ -46,10 +47,10 @@ const AdminDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // TODO: Get organizationId from auth context or session
-  // Tạm thời hardcode để test
-  const organizationId = '8594083b-d6f2-4d7f-b4d6-71864844eb16';
-  const userName = 'test01';
+  //lấy token và user từ localStorage
+  const user = getUser();
+  const token = getToken();
+  const organizationId = user.organizationId;
 
   useEffect(() => {
     fetchDashboardData();

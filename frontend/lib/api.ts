@@ -13,6 +13,7 @@ class ApiClient {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
         },
         credentials: 'include',
       });
@@ -34,6 +35,7 @@ class ApiClient {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
         },
         credentials: 'include',
         body: JSON.stringify(data),
@@ -41,6 +43,28 @@ class ApiClient {
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error('API Error:', error);
+      throw error;
+    }
+  }
+  async delete<T = any>(endpoint: string): Promise<T> {
+    try {
+      const response = await fetch(`${this.baseURL}${endpoint}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+        credentials: 'include',
+      });
+
+      if (!response.ok) {
+        const err = await response.json();
+        throw new Error(err.message || `HTTP error! status: ${response.status}`);
       }
 
       return await response.json();

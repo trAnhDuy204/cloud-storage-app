@@ -4,7 +4,7 @@ import {
   CheckCircle, ArrowRight, Menu, X, Star,
   Smartphone, Monitor, Folder, Share2, Clock
 } from 'lucide-react';
-import test from 'node:test';
+import Footer from './footer';
 
 const HomePage = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -224,7 +224,7 @@ const HomePage = () => {
                 {current.SignIn}
               </a>
               <a 
-                href="/pricing" 
+                href="/register" 
                 className="px-6 py-2 text-white rounded-lg font-medium bg-linear-to-r from-orange-500 via-orange-500 to-yellow-500 hover:from-red-600 hover:via-orange-600 hover:to-yellow-600 transition-colors">
                 {current.GetStarted}
               </a>
@@ -250,7 +250,7 @@ const HomePage = () => {
               <a href="#contact" className="block text-gray-700 hover:text-orange-600 py-2">{current.Contact}</a>
               <div className="pt-3 border-t border-gray-200">
                 <a href="/login" className="block text-gray-700 hover:text-orange-600 py-2">{current.SignIn}</a>
-                <a href="/pricing" className="block bg-linear-to-r from-red-500 via-orange-500 to-yellow-500 text-white rounded-lg py-2 text-center mt-2">
+                <a href="/register" className="block bg-linear-to-r from-red-500 via-orange-500 to-yellow-500 text-white rounded-lg py-2 text-center mt-2">
                   {current.GetStarted}
                 </a>
               </div>
@@ -272,7 +272,7 @@ const HomePage = () => {
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
                 <a 
-                  href="/pricing" 
+                  href="/register" 
                   className="px-8 py-4 bg-linear-to-r from-red-500 via-orange-500 to-yellow-500 text-white rounded-lg hover:from-red-600 hover:via-orange-600 hover:to-yellow-600 transition-all text-lg font-semibold flex items-center justify-center gap-2 group"
                 >
                   {current.StartFreeTrial}
@@ -445,7 +445,7 @@ const HomePage = () => {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <a 
-              href="/pricing" 
+              href="/register" 
               className="px-8 py-4 bg-white text-orange-600 rounded-lg hover:bg-gray-100 transition-all text-lg font-semibold"
             >
               {current.Freetrial}
@@ -459,6 +459,7 @@ const HomePage = () => {
           </div>
         </div>
       </section>
+      <Footer/>
     </div>
   );
 };

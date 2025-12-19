@@ -4,6 +4,7 @@ import {
   Settings, Menu, X, LogOut, AlertCircle
 } from 'lucide-react';
 import { apiClient } from '../../../lib/api';
+import { getToken, getUser } from "../../app/utils/auth";
 
 interface DashboardData {
   organization: {
@@ -42,12 +43,25 @@ export default function Header() {
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  
-  // TODO: Get organizationId from auth context or session
-  // Tạm thời hardcode để test
-  const organizationId = '8594083b-d6f2-4d7f-b4d6-71864844eb16';
-  const userName = 'test01';
-  
+ 
+  const user = getUser();
+  const [token, setToken] = useState<string | null>(null);
+
+  useEffect(() => {
+    setToken(localStorage.getItem("token"));
+  }, []);
+
+  console.log("token", token);
+  console.log("user", user);
+
+  const organizationId = user.organizationId;
+  const userName = user.name;
+
+  function handleLogout() {
+    localStorage.removeItem("token");
+    setToken(null);
+    window.location.href = "/";
+  }
   useEffect(() => {
     fetchDashboardData();
   }, []);
@@ -128,11 +142,23 @@ export default function Header() {
           </div>
 
           <div className="relative group">
-            <button className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center hover:bg-gray-300 transition-colors">
-              <span className="text-sm font-medium text-gray-600">
-                {userName.charAt(0)}
-              </span>
-            </button>
+            <button className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden hover:bg-gray-300 transition-colors">
+  {user.avatarUrl ? (
+    <img
+      src={user.avatarUrl}
+      alt={userName}
+      className="w-full h-full object-cover"
+      onError={(e) => {
+        e.currentTarget.style.display = "none";
+      }}
+    />
+  ) : (
+    <span className="text-sm font-semibold text-gray-700">
+      {userName?.charAt(0)?.toUpperCase() || "?"}
+    </span>
+  )}
+</button>
+
 
           {/* Dropdown */}
           <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
@@ -141,15 +167,15 @@ export default function Header() {
               Cài đặt
             </a>
 
-            <a href="#" className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+            <a href="/dashboard" className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
               <LogOut className="w-4 h-4" />
               Thoát trang quản trị
             </a>
 
-            <a href="#" className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+            <button onClick={handleLogout} className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
               <LogOut className="w-4 h-4" />
               Đăng xuất
-            </a>
+            </button>
           </div>
         </div>
       </div>

@@ -16,6 +16,7 @@ const billingRoutes = require('./routes/billing');
 const organizationRoutes = require('./routes/organization');
 const stripePaymentRoutes = require('./routes/stripepayment');
 const statisticsRoutes = require('./routes/statisticRoute');
+const authRoutes = require("./routes/auth");
 
 // Middleware
 app.use(cors({
@@ -201,6 +202,7 @@ app.use(billingRoutes);
 app.use(organizationRoutes);
 app.use(stripePaymentRoutes);
 app.use(statisticsRoutes);
+app.use(authRoutes);
 
 // test route
 app.get('/api/health', (req, res) => {

@@ -2,10 +2,11 @@ import { useEffect, useState } from 'react';
 import {
     Info, BarChart3, Settings, Library,
     Users, UsersRound, DollarSign, Link2,
-    Clock, AlertCircle, Plus, Search, X
+    Clock, AlertCircle, Plus, Search, X, Trash2 
 } from 'lucide-react';
 import Link from "next/link";
 import { apiClient } from '../../../lib/api';
+import { getToken, getUser } from "../../app/utils/auth";
 
 interface DashboardData {
     organization: {
@@ -59,8 +60,10 @@ const UsersAdmin = () => {
     const [error, setError] = useState<string | null>(null);
     const [isAddingUser, setIsAddingUser] = useState(false);
 
-    // TODO: Get organizationId from auth context or session
-    const organizationId = '8594083b-d6f2-4d7f-b4d6-71864844eb16';
+    //lấy token và user từ localStorage
+    const user = getUser();
+    const token = getToken();
+    const organizationId = user.organizationId;
 
     useEffect(() => {
         fetchDashboardData();
@@ -155,7 +158,7 @@ const UsersAdmin = () => {
     });
 
     const handleAddUser = async () => {
-        if (!newUser.name || !newUser.email || !newUser.password) {
+        if (!newUser.email || !newUser.password) {
             alert('Vui lòng điền đầy đủ thông tin');
             return;
         }
@@ -175,15 +178,45 @@ const UsersAdmin = () => {
                 await fetchDashboardData();
                 setShowAddUserModal(false);
                 setNewUser({ organizationId: '', name: '', email: '', password: '', role: 'member' });
-                alert('User added successfully!');
+                alert('Thêm user thành công!');
             }
         } catch (err) {
-            alert(err instanceof Error ? err.message : 'Failed to add user');
+            alert(err instanceof Error ? err.message : 'Thêm user thất bại');
             console.error('Error adding user:', err);
         } finally {
             setIsAddingUser(false);
         }
     };
+
+    const handleDeleteUser = async (userId: string) => {
+    if (!confirm("Bạn có chắc chắn muốn xóa user này không?")) return;
+
+    try {
+        const res = await apiClient.delete(`/api/users/${userId}`);
+
+        if (!res.success) {
+            throw new Error(res.message || "Xóa user thất bại");
+        }
+
+        // Cập nhật dashboardData.users
+        setDashboardData((prev) => {
+            if (!prev) return prev;
+
+            return {
+                ...prev,
+                users: prev.users.filter((u) => u.id !== userId),
+            };
+        });
+
+        alert("Xóa user thành công");
+    } catch (err) {
+        console.error("Delete user error:", err);
+        alert(err instanceof Error ? err.message : "Có lỗi xảy ra khi xóa user");
+    }
+};
+
+
+    
 
     // Loading state
     if (loading) {
@@ -408,6 +441,17 @@ const UsersAdmin = () => {
                                             <div className="text-sm text-gray-700">{formatDate(user.createdAt)}</div>
                                             <div className="text-xs text-gray-500">{timeAgo(user.updatedAt)}</div>
                                         </td>
+
+                                        <td className="px-4 py-4 text-center">
+                                            <button
+                                                onClick={() => handleDeleteUser(user.id)}
+                                                className="inline-flex items-center justify-center w-8 h-8 rounded-full text-red-600 hover:bg-red-100 transition-colors"
+                                                title="Xóa user"
+                                                disabled={user.role === "admin"}
+                                            >
+                                                <Trash2 className="w-4 h-4" />
+                                            </button>
+                                        </td>
                                     </tr>
                                 ))}
                             </tbody>
@@ -448,7 +492,6 @@ const UsersAdmin = () => {
                                 </label>
                                 <input
                                     type="text"
-                                    value={newUser.name}
                                     onChange={(e) => setNewUser({ ...newUser, name: e.target.value })}
                                     className="w-full px-4 py-2 border text-black border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
                                     placeholder="Enter user name"

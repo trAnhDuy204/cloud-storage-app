@@ -480,6 +480,15 @@ ALTER TABLE "TrafficLog" ADD CONSTRAINT "TrafficLog_user_id_fkey"
 ALTER TABLE "TrafficLog" ADD CONSTRAINT "TrafficLog_file_id_fkey" 
     FOREIGN KEY ("file_id") REFERENCES "File"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
+-- AlterTable
+ALTER TABLE "User" 
+ADD COLUMN     "avatarUrl" TEXT,
+ADD COLUMN     "googleId" TEXT,
+
+-- CreateIndex
+CREATE UNIQUE INDEX "User_googleId_key" ON "User"("googleId");
+CREATE UNIQUE INDEX "User_avatarUrl_key" ON "User"("avatarUrl");
+
 -- Add trigger for updated_at
 CREATE TRIGGER trg_update_daily_stats
 BEFORE UPDATE ON "DailyStatistic"

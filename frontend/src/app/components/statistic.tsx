@@ -7,6 +7,7 @@ import {
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import Link from "next/link";
 import { apiClient } from '../../../lib/api';
+import { getToken, getUser } from "../../app/utils/auth";
 
 interface DashboardData {
   organization: {
@@ -84,7 +85,9 @@ const StatisticsPage = () => {
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
 
-  // TODO: Get organizationId from auth context or session
+  //lấy token và user từ localStorage
+  const user = getUser();
+  const token = getToken();
   const organizationId = '8594083b-d6f2-4d7f-b4d6-71864844eb16';
 
   useEffect(() => {
@@ -128,7 +131,7 @@ const StatisticsPage = () => {
       }
 
       const response = await apiClient.get(
-        `/api/organizations/${organizationId}/statistics?${params.toString()}`
+        `/api/statistics/${organizationId}?${params.toString()}`
       );
       
       if (response.success) {
