@@ -87,7 +87,8 @@ export default function HeaderDashboard() {
     }
   };
 
-   function handleLogout() {
+  
+  function handleLogout() {
     localStorage.removeItem("token");
     setToken(null);
     window.location.href = "/";
