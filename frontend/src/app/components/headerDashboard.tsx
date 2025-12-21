@@ -1,5 +1,5 @@
 'use client';
-
+export const dynamic = 'force-dynamic';
 import { useEffect, useState } from 'react';
 import { 
   Settings, Menu, X, LogOut, AlertCircle
@@ -45,31 +45,32 @@ export default function HeaderDashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
  
-  const user = getUser();
+  const [user, setUser] = useState<any>(null);
   const [token, setToken] = useState<string | null>(null);
+  const [organizationId, setOrganizationId] = useState<string | null>(null);
 
   useEffect(() => {
-    setToken(getToken());
+    const u = getUser();
+    const t = getToken();
+
+    if (!u || !t) {
+      setLoading(false);
+      return;
+    }
+
+    setUser(u);
+    setToken(t);
+    setOrganizationId(u.organizationId);
   }, []);
 
-  console.log("token", token);
-  console.log("user", user);
-  if (!user) {
-    return null; // or a loading state
-  }
-  const organizationId = user.organizationId;
-  const userName = user.name;
-  const userRole = user.role;
+  const userName = user?.name;
+  const userRole = user?.role;
 
-  function handleLogout() {
-    localStorage.removeItem("token");
-    setToken(null);
-    window.location.href = "/";
-  }
   useEffect(() => {
+    if (!organizationId) return;
     fetchDashboardData();
-  }, []);
-  
+  }, [organizationId]);
+
   const fetchDashboardData = async () => {
     try {
       setLoading(true);
@@ -85,6 +86,12 @@ export default function HeaderDashboard() {
       setLoading(false);
     }
   };
+
+   function handleLogout() {
+    localStorage.removeItem("token");
+    setToken(null);
+    window.location.href = "/";
+  }
   
   // Loading state
   if (loading) {
@@ -96,6 +103,10 @@ export default function HeaderDashboard() {
         </div>
       </div>
     );
+  }
+
+  if (!user || !token) {
+    return <div>Vui lòng đăng nhập</div>;
   }
 
   // Error state

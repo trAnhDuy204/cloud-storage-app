@@ -21,7 +21,6 @@ const ReviewPlanPage = () => {
   const [error, setError] = useState<string | null>(null);
   //lấy token và user từ localStorage
   const user = getUser();
-  const token = getToken();
 
   // Load plan from localStorage on mount
   useEffect(() => {
@@ -109,8 +108,8 @@ const ReviewPlanPage = () => {
     setLoading(true);
 
     try {
-      const organizationId = user.organizationId;
-      const userEmail = user.email;
+      const organizationId = user?.organizationId;
+      const userEmail = user?.email;
 
       if (paymentMethod === 'stripe') {
       // Gọi API tạo Stripe Checkout Session
@@ -162,6 +161,8 @@ const ReviewPlanPage = () => {
       setLoading(false);
     }
   };
+
+  if (!user) return <div>Loading...</div>;
 
   // Error state
   if (error) {

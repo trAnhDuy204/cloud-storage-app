@@ -1,3 +1,6 @@
+'use client';
+export const dynamic = 'force-dynamic';
+
 import HeaderDashboard from "../components/headerDashboard";
 import Footer from "../components/footer"
 import type { ReactNode } from "react";

@@ -1,3 +1,6 @@
+'use client';
+export const dynamic = 'force-dynamic';
+
 import { useEffect, useState } from 'react';
 import { 
   Info, BarChart3, Settings, Library, 
@@ -46,15 +49,29 @@ const AdminDashboard = () => {
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [user, setUser] = useState<any>(null);
+  const [token, setToken] = useState<string | null>(null);
+  const [organizationId, setOrganizationId] = useState<string | null>(null);
+  
+  useEffect(() => {
+    const u = getUser();
+    const t = getToken();
 
-  //lấy token và user từ localStorage
-  const user = getUser();
-  const token = getToken();
-  const organizationId = user.organizationId;
+    if (!u || !t) {
+      setLoading(false);
+      return;
+    }
+
+    setUser(u);
+    setToken(t);
+    setOrganizationId(u.organizationId);
+  }, []);
 
   useEffect(() => {
+    if (!organizationId) return;
+
     fetchDashboardData();
-  }, []);
+  }, [organizationId]);
 
   const fetchDashboardData = async () => {
     try {
@@ -94,6 +111,10 @@ const AdminDashboard = () => {
         </div>
       </div>
     );
+  }
+  
+  if (!user || !token) {
+    return <div>Vui lòng đăng nhập</div>;
   }
 
   // Error state

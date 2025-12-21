@@ -87,8 +87,7 @@ const StatisticsPage = () => {
 
   //lấy token và user từ localStorage
   const user = getUser();
-  const token = getToken();
-  const organizationId = '8594083b-d6f2-4d7f-b4d6-71864844eb16';
+  const organizationId = user?.organizationId;
 
   useEffect(() => {
     fetchDashboardData();
@@ -250,6 +249,8 @@ const StatisticsPage = () => {
       </div>
     );
   }
+
+  if (!user) return <div>Loading...</div>;
 
   // Error state
   if (error || !dashboardData) {

@@ -62,8 +62,7 @@ const UsersAdmin = () => {
 
     //lấy token và user từ localStorage
     const user = getUser();
-    const token = getToken();
-    const organizationId = user.organizationId;
+    const organizationId = user?.organizationId;
 
     useEffect(() => {
         fetchDashboardData();
@@ -213,7 +212,7 @@ const UsersAdmin = () => {
         console.error("Delete user error:", err);
         alert(err instanceof Error ? err.message : "Có lỗi xảy ra khi xóa user");
     }
-};
+    };
 
 
     
@@ -229,6 +228,8 @@ const UsersAdmin = () => {
             </div>
         );
     }
+
+    if (!user) return <div>Loading...</div>;
 
     // Error state
     if (error || !dashboardData) {
