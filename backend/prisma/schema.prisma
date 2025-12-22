@@ -16,8 +16,11 @@ model User {
   avatarUrl      String?
   organizationId Int?
   organization   Organization? @relation(fields: [organizationId], references: [id])
+  folders        Folder[]      
+  files          File[]        
   createdAt      DateTime      @default(now()) @map("created_at")
 }
+
 
 
 
@@ -25,5 +28,43 @@ model Organization {
   id        Int      @id @default(autoincrement())
   name      String
   users     User[]
+  folders   Folder[]   
+  files     File[]     
   createdAt DateTime @default(now()) @map("created_at")
 }
+
+
+model Folder {
+  id             Int      @id @default(autoincrement())
+  name           String
+  parentId       Int?
+  ownerId        Int?
+  organizationId Int
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @default(now()) @map("updated_at")
+
+  organization Organization @relation(fields: [organizationId], references: [id])
+  owner         User?        @relation(fields: [ownerId], references: [id])
+  files         File[]
+
+  @@map("Folder")
+}
+
+model File {
+  id             Int      @id @default(autoincrement())
+  name           String
+  folderId       Int
+  ownerId        Int?
+  organizationId Int
+  sizeBytes      Int?
+  mimeType       String?
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @default(now()) @map("updated_at")
+
+  folder        Folder       @relation(fields: [folderId], references: [id])
+  owner         User?        @relation(fields: [ownerId], references: [id])
+  organization  Organization @relation(fields: [organizationId], references: [id])
+
+  @@map("File")
+}
+
