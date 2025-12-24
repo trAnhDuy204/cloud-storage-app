@@ -450,6 +450,7 @@ CREATE TABLE "TrafficLog" (
 
 -- CreateIndexes
 CREATE UNIQUE INDEX "DailyStatistic_organization_id_date_key" ON "DailyStatistic"("organization_id", "date");
+CREATE UNIQUE INDEX "UsageStat_organization_id_key" ON "UsageStat"("organization_id");
 CREATE INDEX "DailyStatistic_organization_id_idx" ON "DailyStatistic"("organization_id");
 CREATE INDEX "DailyStatistic_date_idx" ON "DailyStatistic"("date");
 

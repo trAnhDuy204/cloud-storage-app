@@ -14,7 +14,6 @@ async function authMiddleware(req, res, next) {
     } catch (err) {
       return res.status(401).json({ message: "Unauthorized" });
     }
-
     // Find user by id or email in token
     let user = null;
     if (payload.id) {
@@ -25,7 +24,13 @@ async function authMiddleware(req, res, next) {
 
     if (!user) return res.status(401).json({ message: "Unauthorized" });
 
-    req.user = { id: user.id, email: user.email, name: user.name ?? null };
+    req.user = { 
+      id: user.id, 
+      email: user.email, 
+      name: user.name ?? null, 
+      role: user.role,
+      organizationId: user.organizationId,
+    };
     next();
   } catch (err) {
     console.error("auth middleware error:", err);

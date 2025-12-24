@@ -118,6 +118,10 @@ const ReviewPlanPage = () => {
         billingCycle: billingCycle,
         organizationId: organizationId,
         userEmail: userEmail
+      }, {
+        headers: {
+          'Content-Type': 'application/json'
+        }
       });
 
       if (response.success) {
@@ -140,6 +144,10 @@ const ReviewPlanPage = () => {
           planId: selectedPlan.id,
           billingCycle: billingCycle,
           organizationId: organizationId
+        }, {
+          headers: {
+            'Content-Type': 'application/json'
+          }
         });
 
         if (response.success) {

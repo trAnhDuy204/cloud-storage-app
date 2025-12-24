@@ -4,8 +4,13 @@ const { OAuth2Client } = require("google-auth-library");
 const jwt = require("jsonwebtoken");
 const authMiddleware = require("../utils/auth.middleware");
 const prisma = require("../lib/prisma");
+const { trackUserActivity } = require('../utils/statistics');
 
 const router = express.Router();
+// GOOGLE LOGIN endpoint (keeps your existing logic but upserts user)
+const CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || "811435489538-mj43vmh6u6jrkas2grdg26le7ac3vk23.apps.googleusercontent.com";
+const JWT_SECRET = process.env.JWT_SECRET || "dev_secret_key";
+const client = new OAuth2Client(CLIENT_ID);
 
 router.post("/api/register", register);
 router.post("/api/login", login);
@@ -15,10 +20,7 @@ router.get("/api/me", authMiddleware, (req, res) => {
   res.json({ user: req.user });
 });
 
-// GOOGLE LOGIN endpoint (keeps your existing logic but upserts user)
-const CLIENT_ID = process.env.GOOGLE_CLIENT_ID || "811435489538-mj43vmh6u6jrkas2grdg26le7ac3vk23.apps.googleusercontent.com";
-const JWT_SECRET = process.env.JWT_SECRET || "dev_jwt_secret";
-const client = new OAuth2Client(CLIENT_ID);
+
 
 // ================= GOOGLE LOGIN =================
 router.post("/api/login/google", async (req, res) => {
@@ -49,24 +51,25 @@ router.post("/api/login/google", async (req, res) => {
       where: { email },
     });
 
-    // 3) Nếu user chưa tồn tại → tạo Organization + User
+    // 3) Nếu user chưa tồn tại
     if (!user) {
       // tạo organization
-        const plan = await prisma.plan.findFirst({
-            where: {name: "Free"},
-        });
-        if (!plan) {
-            return res.status(409).json({ message: "Plan đã tồn tại" });
-        }
+      const plan = await prisma.plan.findFirst({
+          where: {name: "Free"},
+      });
+      if (!plan) {
+          return res.status(409).json({ message: "Plan đã tồn tại" });
+      }
 
-        const organization = await prisma.organization.create({
-          data: {
-            storageLimitGb: plan.storageLimitGb,
-            planId: plan.id,
-            name: email,
-          },
-        });
+      const organization = await prisma.organization.create({
+        data: {
+          storageLimitGb: plan.storageLimitGb,
+          planId: plan.id,
+          name: email,
+        },
+      });
 
+      //tạo user
       user = await prisma.user.create({
         data: {
           email,
@@ -78,7 +81,17 @@ router.post("/api/login/google", async (req, res) => {
           organizationId: organization.id,
         },
       });
-    } else {
+
+      //tạo root folder "My library"
+      const rootFolder = await prisma.folder.create({
+        data: {
+          name: "My library",
+          parentId: null,
+          ownerId: user.id,
+          organizationId: organization.id,
+        }
+      });
+    }else {
       // 4) Nếu user đã có → cập nhật thông tin Google
       user = await prisma.user.update({
         where: { id: user.id },
@@ -114,6 +127,17 @@ router.post("/api/login/google", async (req, res) => {
       }
     }
 
+    // theo dõi sau khi đăng nhập thành công
+    if (user.organizationId) {
+      await trackUserActivity(
+        user.id,
+        user.organizationId,
+        'login',
+        req.ip,
+        req.headers['user-agent']
+      );
+    }
+
     // 5) Tạo JWT
     const token = jwt.sign(
       {
@@ -144,6 +168,38 @@ router.post("/api/login/google", async (req, res) => {
     return res.status(500).json({ message: "Google login failed" });
   }
 });
+
+router.post(
+  "/api/logout",
+  authMiddleware,
+  async (req, res) => {
+    try {
+      // theo dõi sau khi đăng xuất
+      await trackUserActivity(
+        user.id,
+        user.organizationId,
+        'logout',
+        req.ip,
+        req.headers['user-agent']
+      );
+
+      // Clear cookie (nếu có)
+      res.clearCookie('token');
+
+      return res.json({
+        success: true,
+        message: 'Logged out successfully'
+      });
+    } catch (err) {
+      console.error("Logout error:", err);
+      return res.status(500).json({
+        success: false,
+        message: 'Logout failed'
+      });
+    }
+  }
+);
+
 
 
 module.exports = router;

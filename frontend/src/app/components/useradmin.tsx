@@ -88,13 +88,10 @@ const UsersAdmin = () => {
     const menuItems = [
         { id: 'info', icon: Info, label: 'Thông tin', link: '/OrganizationAdminPage/info' },
         { id: 'statistic', icon: BarChart3, label: 'Statistic', link: '/OrganizationAdminPage/statistic' },
-        { id: 'settings', icon: Settings, label: 'Cài đặt', link: '/OrganizationAdminPage' },
-        { id: 'library', icon: Library, label: 'Thư viện', link: '/OrganizationAdminPage' },
         { id: 'users', icon: Users, label: 'Người dùng', active: true, link: '/OrganizationAdminPage/usersadmin' },
-        { id: 'groups', icon: UsersRound, label: 'Hội Nhóm', link: '/OrganizationAdminPage' },
         { id: 'billing', icon: DollarSign, label: 'Billing', link: '/PricingPage' },
         { id: 'links', icon: Link2, label: 'Links', link: '/OrganizationAdminPage' },
-        { id: 'logs', icon: Clock, label: 'Logs', link: '/OrganizationAdminPage' },
+        { id: 'logs', icon: Clock, label: 'Logs', link: '/OrganizationAdminPage/logs' },
     ];
 
     const [activeTab, setActiveTab] = useState('all');
@@ -170,6 +167,10 @@ const UsersAdmin = () => {
                 email: newUser.email,
                 password: newUser.password,
                 role: newUser.role,
+            }, {
+                headers: {
+                    'Content-Type': 'application/json'
+                }
             });
 
             if (response.success) {
@@ -191,7 +192,7 @@ const UsersAdmin = () => {
     if (!confirm("Bạn có chắc chắn muốn xóa user này không?")) return;
 
     try {
-        const res = await apiClient.delete(`/api/users/${userId}`);
+        const res = await apiClient.delete(`/api/users/${userId}`, { data: { password: '' } });
 
         if (!res.success) {
             throw new Error(res.message || "Xóa user thất bại");
@@ -305,6 +306,27 @@ const UsersAdmin = () => {
             <div className="flex-1 flex flex-col overflow-hidden">
                 {/* Header */}
                 <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6">
+                    {/* MOBILE HEADER */}
+                    <div className="lg:hidden h-14 bg-white border-b flex items-center px-4">
+                        <button
+                            onClick={() => setSidebarOpen(true)}
+                            className="p-2 rounded-lg hover:bg-gray-100"
+                        >
+                            {/* Hamburger */}
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                className="w-6 h-6 text-gray-800"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                            >
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                            </svg>
+                        </button>
+
+
+                    </div>
+
                     <div className="flex items-center gap-4">
                         {/* Action Buttons */}
                         <button

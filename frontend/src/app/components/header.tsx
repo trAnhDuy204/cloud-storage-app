@@ -40,7 +40,6 @@ interface DashboardData {
 }
 
 export default function Header() {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -85,12 +84,26 @@ export default function Header() {
       setLoading(false);
     }
   };
+  
 
-  function handleLogout() {
-    localStorage.removeItem("token");
-    setToken(null);
-    window.location.href = "/";
+  const handleLogout = async () => {
+  try {
+    await apiClient.post('/api/logout', {}, {
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+  } catch (err) {
+    console.error('Logout tracking failed:', err);
+  } finally {
+    // Xóa token sau cùng
+    localStorage.removeItem('token');
+
+    // Redirect về login
+    window.location.href = '/login';
   }
+};
+
   
   // Loading state
   if (loading) {
@@ -137,15 +150,6 @@ export default function Header() {
         </div>
       </div>
 
-      <div className="flex items-center gap-4">
-        <button
-          onClick={() => setSidebarOpen(!sidebarOpen)}
-          className="lg:hidden p-2 hover:bg-gray-100 rounded-lg"
-        >
-          {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-        </button>
-      </div>
-
       {/* User Menu */}
       <div className="flex items-center gap-4">
         <div className="hidden md:block text-right">
@@ -176,7 +180,7 @@ export default function Header() {
 
           {/* Dropdown */}
           <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-            <a href="#" className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+            <a href="/SettingPage" className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
               <Settings className="w-4 h-4" />
               Cài đặt
             </a>

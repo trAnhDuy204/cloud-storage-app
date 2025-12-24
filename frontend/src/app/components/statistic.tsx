@@ -153,13 +153,10 @@ const StatisticsPage = () => {
   const menuItems = [
     { id: 'info', icon: Info, label: 'Thông tin', link: '/OrganizationAdminPage/info' },
     { id: 'statistic', icon: BarChart3, label: 'Statistic', link: '/OrganizationAdminPage/statistic' },
-    { id: 'settings', icon: Settings, label: 'Cài đặt', link: '/OrganizationAdminPage' },
-    { id: 'library', icon: Library, label: 'Thư viện', link: '/OrganizationAdminPage' },
     { id: 'users', icon: Users, label: 'Người dùng', link: '/OrganizationAdminPage/usersadmin' },
-    { id: 'groups', icon: UsersRound, label: 'Hội Nhóm', link: '/OrganizationAdminPage' },
     { id: 'billing', icon: DollarSign, label: 'Billing', link: '/PricingPage' },
     { id: 'links', icon: Link2, label: 'Links', link: '/OrganizationAdminPage' },
-    { id: 'logs', icon: Clock, label: 'Logs', link: '/OrganizationAdminPage' },
+    { id: 'logs', icon: Clock, label: 'Logs', link: '/OrganizationAdminPage/logs' },
   ];
 
   const tabs = [

@@ -219,7 +219,7 @@ model Share {
 
 model UsageStat {
   id                String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  organizationId    String    @map("organization_id") @db.Uuid
+  organizationId    String    @unique @map("organization_id") @db.Uuid
   totalStorageBytes BigInt    @default(0) @map("total_storage_bytes")
   fileCount         BigInt    @default(0) @map("file_count")
   lastUpdatedAt     DateTime  @default(now()) @map("last_updated_at")

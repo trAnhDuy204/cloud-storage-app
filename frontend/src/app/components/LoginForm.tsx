@@ -10,8 +10,7 @@ export default function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  const GOOGLE_CLIENT_ID =
-    "811435489538-mj43vmh6u6jrkas2grdg26le7ac3vk23.apps.googleusercontent.com";
+  const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || "811435489538-mj43vmh6u6jrkas2grdg26le7ac3vk23.apps.googleusercontent.com";
   const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
   const BACKEND_GOOGLE_AUTH = `${API_BASE}/api/login/google`;
   const BACKEND_LOGIN = `${API_BASE}/api/login`;

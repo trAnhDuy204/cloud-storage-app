@@ -3,7 +3,7 @@ const prisma = require('../lib/prisma');
 async function trackUserActivity(
   userId,
   organizationId,
-  activityType = 'login',
+  activityType,
   ipAddress,
   userAgent
 ) {
@@ -100,46 +100,3 @@ module.exports = {
   trackTraffic,
   updateUsageStats
 };
-
-
-/*
-  
-TODO: thêm vào chỗ upload, dowload file
-import { trackTraffic, updateUsageStats } from '@/lib/statistics';
-
-// After successful upload
-await trackTraffic(
-  organizationId, 
-  'upload', 
-  file.size, 
-  userId, 
-  fileId
-);
-
-// Update usage stats
-await updateUsageStats(organizationId);
-
-//after dowload file
-await trackTraffic(
-  organizationId, 
-  'download', 
-  file.sizeBytes, 
-  userId, 
-  fileId
-);
-
-// Example usage in file upload/download handlers:
-// 
-// File: pages/api/files/upload.ts
-// import { trackTraffic, updateUsageStats } from '@/lib/statistics';
-// 
-// After successful upload:
-// await trackTraffic(organizationId, 'upload', file.size, userId, fileId);
-// await updateUsageStats(organizationId);
-//
-// File: pages/api/auth/login.ts  
-// import { trackUserActivity } from '@/lib/statistics';
-//
-// After successful login:
-// await trackUserActivity(user.id, user.organizationId, 'login', req.headers['x-forwarded-for'], req.headers['user-agent']);
-*/

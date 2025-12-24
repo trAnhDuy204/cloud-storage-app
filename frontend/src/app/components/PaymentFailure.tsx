@@ -58,10 +58,10 @@ export default function PaymentFailure() {
             Thử lại
           </button>
           <button
-            onClick={() => window.location.href = '/PricingPage'}
+            onClick={() => window.location.href = '/OrganizationAdminPage'}
             className="w-full py-3 px-6 bg-gray-100 text-gray-900 rounded-lg font-semibold hover:bg-gray-200 transition-colors"
           >
-            Quay lại trang Pricing
+            Quay lại trang quản lý
           </button>
         </div>
       </div>

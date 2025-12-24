@@ -4,7 +4,7 @@ const jwt = require("jsonwebtoken");
 const prisma = require("../lib/prisma");
 const { trackUserActivity } = require('../utils/statistics');
 
-const JWT_SECRET = process.env.JWT_SECRET || "changeme";
+const JWT_SECRET = process.env.JWT_SECRET || "dev_secret_key";
 
 // REGISTER
 exports.register = async (req, res) => {
@@ -51,6 +51,16 @@ exports.register = async (req, res) => {
       },
     });
 
+    //tạo root folder "My library"
+    const rootFolder =  await prisma.folder.create({
+      data: {
+        name: "My library",
+        parentId: null,
+        ownerId: user.id, 
+        organizationId: organization.id,
+      }
+    });
+
     return res.status(201).json({
       message: "Đăng ký thành công",
       user: {
@@ -59,7 +69,8 @@ exports.register = async (req, res) => {
         plan: plan.name,
         email: user.email,
         name: user.name,
-        storageLimitGb: organization.storageLimitGb
+        storageLimitGb: organization.storageLimitGb,
+        rootFolderId: rootFolder.id
       },
     });
   } catch (error) {
@@ -92,6 +103,23 @@ exports.login = async (req, res) => {
       return res.status(400).json({ message: "Tài khoản không tồn tại" });
     }
 
+    //tìm root folder "My library"
+    const rootFolder = await prisma.folder.findFirst({
+      where: { name: "My library", organizationId: user.organizationId, parentId: null},
+    });
+
+    if (!rootFolder) {
+      //tạo root folder nếu chưa có
+      rootFolder =  await prisma.folder.create({
+        data: {
+          name: "My library",
+          parentId: null,
+          ownerId: user.id, 
+          organizationId: organization.id,
+        }
+      });
+    }
+
     if (!user.passwordHash) {
       console.error("LỖI: user.password bị null!");
       return res.status(500).json({ message: "Dữ liệu user lỗi, thiếu mật khẩu" });
@@ -109,7 +137,7 @@ exports.login = async (req, res) => {
             user.id,
             user.organizationId,
             'login',
-            req.headers['x-forwarded-for'],
+            req.ip,
             req.headers['user-agent']
         );
     }
@@ -120,7 +148,8 @@ exports.login = async (req, res) => {
         id: user.id, 
         email: user.email,
         role: user.role,
-        organizationId: organization.id
+        organizationId: organization.id,
+        rootFolderId: rootFolder.id
       },
       JWT_SECRET,
       { expiresIn: "7d" }
@@ -135,7 +164,8 @@ exports.login = async (req, res) => {
         role: user.role,
         email: user.email,
         name: user.name,
-        googleId: user.googleId
+        googleId: user.googleId,
+        rootFolderId: rootFolder.id
       },
     });
   } catch (error) {

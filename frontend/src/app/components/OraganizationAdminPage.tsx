@@ -90,15 +90,12 @@ const AdminDashboard = () => {
   };
 
   const menuItems = [
-    { id: 'info', icon: Info, label: 'Thông tin', active: true ,link: '/OrganizationAdminPage/info'},
-    { id: 'statistic', icon: BarChart3, label: 'Statistic' ,link: '/OrganizationAdminPage/statistic'},
-    { id: 'settings', icon: Settings, label: 'Cài đặt' ,link: '/OrganizationAdminPage'},
-    { id: 'library', icon: Library, label: 'Thư viện' ,link: '/OrganizationAdminPage'},
-    { id: 'users', icon: Users, label: 'Người dùng' ,link: '/OrganizationAdminPage/usersadmin'},
-    { id: 'groups', icon: UsersRound, label: 'Hội Nhóm' ,link: '/OrganizationAdminPage'},
-    { id: 'billing', icon: DollarSign, label: 'Billing' ,link: '/PricingPage'},
-    { id: 'links', icon: Link2, label: 'Links' ,link: '/OrganizationAdminPage'},
-    { id: 'logs', icon: Clock, label: 'Logs' ,link: '/OrganizationAdminPage'},
+    { id: 'info', icon: Info, label: 'Thông tin', active: true ,link: '/OrganizationAdminPage/info' },
+    { id: 'statistic', icon: BarChart3, label: 'Statistic' ,link: '/OrganizationAdminPage/statistic' },
+    { id: 'users', icon: Users, label: 'Người dùng' ,link: '/OrganizationAdminPage/usersadmin' },
+    { id: 'billing', icon: DollarSign, label: 'Billing' ,link: '/PricingPage' },
+    { id: 'links', icon: Link2, label: 'Links' ,link: '/OrganizationAdminPage' },
+    { id: 'logs', icon: Clock, label: 'Logs' ,link: '/OrganizationAdminPage/logs' },
   ];
 
   // Loading state
@@ -112,7 +109,7 @@ const AdminDashboard = () => {
       </div>
     );
   }
-  
+
   if (!user || !token) {
     return <div>Vui lòng đăng nhập</div>;
   }
@@ -192,6 +189,28 @@ const AdminDashboard = () => {
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden">
+        {/* MOBILE HEADER */}
+          <div className="lg:hidden h-14 bg-white border-b flex items-center px-4">
+            <button
+              onClick={() => setSidebarOpen(true)}
+              className="p-2 rounded-lg hover:bg-gray-100"
+            >
+              {/* Hamburger */}
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="w-6 h-6 text-gray-800"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            </button>
+
+            <span className="ml-3 font-semibold text-gray-800">
+              Dashboard
+            </span>
+          </div>
         {/* Content Area */}
         <main className="flex-1 overflow-y-auto p-4 lg:p-6">
           {/* Team Info Cards */}
@@ -205,7 +224,7 @@ const AdminDashboard = () => {
                   </svg>
                 </div>
                 <div>
-                  <div className="text-sm font-medium text-gray-500">Tên Nhóm</div>
+                  <div className="text-sm font-medium text-gray-500">Tên Nhóm </div>
                   <div className="text-lg font-semibold text-gray-900">{dashboardData.organization.name}</div>
                 </div>
               </div>

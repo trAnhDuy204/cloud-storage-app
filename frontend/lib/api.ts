@@ -29,7 +29,7 @@ class ApiClient {
     }
   }
 
-  async post<T = any>(endpoint: string, data: any): Promise<T> {
+  async post<T = any>(endpoint: string, data: any, p0: { headers: { 'Content-Type': string; }; }): Promise<T> {
     try {
       const response = await fetch(`${this.baseURL}${endpoint}`, {
         method: 'POST',
@@ -51,7 +51,44 @@ class ApiClient {
       throw error;
     }
   }
-  async delete<T = any>(endpoint: string): Promise<T> {
+  async postFormData<T = any>(endpoint: string, formData: FormData): Promise<T> {
+  const response = await fetch(`${this.baseURL}${endpoint}`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem('token')}`,
+    },
+    body: formData,
+  });
+
+  return response.json();
+}
+
+  async patch<T = any>(endpoint: string, data: any): Promise<T> {
+  try {
+    const response = await fetch(`${this.baseURL}${endpoint}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${localStorage.getItem('token')}`,
+      },
+      credentials: 'include',
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      const err = await response.json();
+      throw new Error(err.message || `HTTP error! status: ${response.status}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('API Error:', error);
+    throw error;
+  }
+}
+
+
+  async delete<T = any>(endpoint: string, p0: { data: { password: string; }; }): Promise<T> {
     try {
       const response = await fetch(`${this.baseURL}${endpoint}`, {
         method: 'DELETE',
