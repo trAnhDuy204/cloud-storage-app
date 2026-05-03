@@ -3,10 +3,11 @@
   "version": "1.0.0",
   "scripts": {
     "start": "node server.js",
+    "postinstall": "prisma generate",
     "dev": "nodemon server.js",
     "prisma:generate": "prisma generate",
-    "prisma:migrate": "prisma migrate deploy",
-    "postinstall": "prisma generate"
+    "prisma:migrate": "prisma migrate deploy"
+    
   },
   "dependencies": {
     "@prisma/client": "^6.18.0",
