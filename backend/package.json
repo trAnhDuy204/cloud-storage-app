@@ -2,9 +2,9 @@
   "name": "backend",
   "version": "1.0.0",
   "scripts": {
-    "start": "node node_modules/prisma/build/index.js migrate deploy && node server.js",
+    "start": "npx prisma migrate deploy && node server.js",
+    "postinstall": "npx prisma generate",
     "dev": "nodemon server.js",
-    "postinstall": "node node_modules/prisma/build/index.js generate",
     "prisma:generate": "npx prisma generate",
     "prisma:migrate": "npx prisma migrate deploy"
   },
