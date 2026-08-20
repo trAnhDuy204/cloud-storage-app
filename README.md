@@ -2,6 +2,9 @@
 
 [Link Demo](https://drive.google.com/file/d/1sLcJRZcJ4KNS1ASOXAoMyKillPphEwAv/view?usp=sharing)
 
+# Báo cáo
+[Link Báo cáo](https://docs.google.com/presentation/d/1qBV2HaIElZVUHQlWw_mGd2cEzGszb050/edit?usp=drive_link&ouid=105638465892598627631&rtpof=true&sd=true)
+
 # Ứng dụng Cloud Storage
 
 Đây là một nền tảng lưu trữ đám mây (Cloud Storage) full-stack cho phép người dùng tải lên, quản lý và chia sẻ tệp một cách an toàn. Hệ thống hỗ trợ đăng nhập bằng Google, thanh toán qua Stripe và được container hóa bằng Docker.
